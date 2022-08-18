@@ -1,8 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "n7O3lWjyM2II8lCx7CKACJrfkMFNzeDGh/aBs6LpjcDnWRHzSmuwMnh4Sg1Zkem9cOrUp23krux29V/2UK/Mww==",
+  "dgSpecHash": "TyXCWPTeGOo0qeR32z5cLYWMwEiDT+G2PAZPDw3R/huIhOZF6O0DIXkJu+T8kVt3Gzj/YYVl7vAwHOqrm6kWNg==",
   "success": true,
   "projectFilePath": "C:\\SoftwareProjects\\OnspringBulkAttachmentDownloader\\OnspringBulkAttachmentDownloader.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\sfree\\.nuget\\packages\\commanddotnet\\7.0.1\\commanddotnet.7.0.1.nupkg.sha512",
+    "C:\\Users\\sfree\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
+    "C:\\Users\\sfree\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512",
+    "C:\\Users\\sfree\\.nuget\\packages\\onspring.api.sdk\\4.0.2\\onspring.api.sdk.4.0.2.nupkg.sha512"
+  ],
   "logs": []
 }
