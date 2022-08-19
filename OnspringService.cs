@@ -4,11 +4,11 @@ using Onspring.API.SDK.Enums;
 
 public class OnspringService
 {
+    private readonly string baseUrl = "https://api.onspring.com/";
     private readonly OnspringClient _client;
 
     public OnspringService(string apiKey)
     {
-        var baseUrl = "https://api.onspring.com/";
         _client = new OnspringClient(baseUrl, apiKey);
     }
 
