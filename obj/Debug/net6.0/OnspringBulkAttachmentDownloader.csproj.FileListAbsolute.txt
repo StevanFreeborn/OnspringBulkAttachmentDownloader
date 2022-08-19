@@ -13,3 +13,7 @@ C:\SoftwareProjects\OnspringBulkAttachmentDownloader\obj\Debug\net6.0\refint\Ons
 C:\SoftwareProjects\OnspringBulkAttachmentDownloader\obj\Debug\net6.0\OnspringBulkAttachmentDownloader.pdb
 C:\SoftwareProjects\OnspringBulkAttachmentDownloader\obj\Debug\net6.0\OnspringBulkAttachmentDownloader.genruntimeconfig.cache
 C:\SoftwareProjects\OnspringBulkAttachmentDownloader\obj\Debug\net6.0\ref\OnspringBulkAttachmentDownloader.dll
+C:\SoftwareProjects\OnspringBulkAttachmentDownloader\bin\Debug\net6.0\CommandDotNet.dll
+C:\SoftwareProjects\OnspringBulkAttachmentDownloader\bin\Debug\net6.0\Newtonsoft.Json.dll
+C:\SoftwareProjects\OnspringBulkAttachmentDownloader\bin\Debug\net6.0\Onspring.API.SDK.dll
+C:\SoftwareProjects\OnspringBulkAttachmentDownloader\obj\Debug\net6.0\OnspringBulkAttachmentDownloader.csproj.CopyComplete
