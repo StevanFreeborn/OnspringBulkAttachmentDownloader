@@ -5,22 +5,16 @@ using Onspring.API.SDK.Enums;
 public class OnspringService
 {
     private readonly string baseUrl = "https://api.onspring.com/";
-    private readonly OnspringClient _client;
+    public readonly OnspringClient _client;
 
     public OnspringService(string apiKey)
     {
         _client = new OnspringClient(baseUrl, apiKey);
     }
 
-    public async Task<List<int>> GetFilesForApp(int appId)
+    public async Task<List<int>> GetFileFieldsForApp(int appId)
     {
-        var fileFields = await GetAppsFileFields(appId);
-        return fileFields;
-    }
-
-    private async Task<List<int>> GetAppsFileFields(int appId)
-    {
-        Console.WriteLine($"Getting file fields for app {appId}...");
+        Console.Write($"Getting file field ids for app {appId}...");
 
         var pagingRequest = new PagingRequest(1, 50);
 
@@ -50,9 +44,13 @@ public class OnspringService
             }
         }
 
-        return fields
+        var fieldIds = fields
         .Where(field => field.Type == FieldType.Attachment || field.Type == FieldType.Image)
         .Select(field => field.Id)
         .ToList();
+
+        Console.WriteLine($"done. ({fieldIds.Count} file fields found)");
+
+        return fieldIds;
     }
 }

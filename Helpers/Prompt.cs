@@ -28,7 +28,7 @@ public static class Prompt
 
                 if (!Source.IsValid(source))
                 {
-                    Console.WriteLine($"{source} is not a valid source. Please enter {Source.App}, {Source.Report}, or {Source.Records}");
+                    Console.WriteLine($"{source} is not a valid source. Please pass one of the following options: {Source.App}, {Source.Report}, or {Source.Records}");
                     source = null;
                 }
             }
@@ -37,40 +37,40 @@ public static class Prompt
         return source;
     }
 
-    public static int GetReportOrAppSource()
+    public static int GetReportSource()
     {
-        var sourceId = 0;
+        var reportId = 0;
 
-        while (sourceId is 0)
+        while (reportId is 0)
         {
             Console.Write("Please enter your source's id: ");
-            var sourceIdInput = Console.ReadLine();
+            var reportIdInput = Console.ReadLine();
 
-            if (int.TryParse(sourceIdInput, out int result))
+            if (int.TryParse(reportIdInput, out int result))
             {
-                sourceId = result;
+                reportId = result;
             }
             else
             {
-                Console.WriteLine($"{sourceIdInput} is not a valid id.");
+                Console.WriteLine($"{reportIdInput} is not a valid report id.");
             }
         }
 
-        return sourceId;
+        return reportId;
     }
 
     public static List<int> GetRecordsSource()
     {
-        var ids = new List<int>();
+        var recordIds = new List<int>();
 
-        while(ids.Count < 1)
+        while(recordIds.Count < 1)
         {
-            Console.Write("Please enter your source's ids: ");
-            var idsInput = Console.ReadLine();
+            Console.Write("Please enter your record ids: ");
+            var recordIdsInput = Console.ReadLine();
 
-            if (!String.IsNullOrWhiteSpace(idsInput))
+            if (!String.IsNullOrWhiteSpace(recordIdsInput))
             {
-                var idStrings = idsInput
+                var idStrings = recordIdsInput
                 .Split(',', StringSplitOptions.TrimEntries)
                 .ToList();
 
@@ -80,17 +80,17 @@ public static class Prompt
 
                     if (!int.TryParse(id, out int result))
                     {
-                        Console.WriteLine($"{id} is an invalid source id. Please try entering your source's ids again.");
-                        ids.Clear();
+                        Console.WriteLine($"{id} is an invalid record id. Please try entering your record ids again.");
+                        recordIds.Clear();
                         break;
                     }
 
                     parsedId = result;
-                    ids.Add(parsedId);
+                    recordIds.Add(parsedId);
                 }
             }
         }
 
-        return ids;
+        return recordIds;
     }
 }
