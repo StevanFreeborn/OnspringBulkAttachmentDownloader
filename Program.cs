@@ -1,7 +1,6 @@
 ﻿using CommandDotNet;
 using Onspring.API.SDK.Models;
 using Onspring.API.SDK.Enums;
-using System.Text.Json;
 
 public class Program
 {
@@ -15,7 +14,7 @@ public class Program
     [DefaultCommand]
     public async Task GetAttachments(
         [Operand(Description = "The id for the app where the attachments are held.")]
-        int appId, 
+        int appId,
         [Operand(Description = "Indicates whether the attachments will be collected from all records in an app, all records in a report, or specific record ids.")]
         string source)
     {
@@ -56,7 +55,7 @@ public class Program
             if (response.IsSuccessful is false) return;
 
             var records = response.Value.Items;
-                        
+
             foreach (var record in records)
             {
                 var recordId = record.RecordId;
@@ -76,7 +75,7 @@ public class Program
                             var attachmentFileId = file.FileId;
                             var attachmentFileInfoResponse = await onspringService._client.GetFileInfoAsync(recordId, fieldId, attachmentFileId);
                             var attachmentFileResponse = await onspringService._client.GetFileAsync(recordId, fieldId, attachmentFileId);
-                            
+
                             if (attachmentFileInfoResponse.IsSuccessful is true && attachmentFileResponse.IsSuccessful is true)
                             {
                                 var attachmentFileInfo = attachmentFileInfoResponse.Value;
@@ -97,7 +96,7 @@ public class Program
                             var imageFileId = id;
                             var imageFileInfoResponse = await onspringService._client.GetFileInfoAsync(recordId, fieldId, imageFileId);
                             var imageFileResponse = await onspringService._client.GetFileAsync(recordId, fieldId, imageFileId);
-                            
+
                             if (imageFileInfoResponse.IsSuccessful is true && imageFileResponse.IsSuccessful is true)
                             {
                                 var imageFileInfo = imageFileInfoResponse.Value;
