@@ -53,4 +53,68 @@ public class OnspringService
 
         return fieldIds;
     }
+
+    public async Task<ApiResponse<GetPagedRecordsResponse>> GetAppRecords(GetRecordsByAppRequest request)
+    {
+        return await _client.GetRecordsForAppAsync(request);
+    }
+
+    public async Task<List<File>> GetFiles(List<ResultRecord> records)
+    {
+        var files = new List<File>();
+
+        foreach (var record in records)
+        {
+            var recordId = record.RecordId;
+
+            foreach (var field in record.FieldData)
+            {
+                var fieldId = field.FieldId;
+
+                if (field.Type == ResultValueType.AttachmentList)
+                {
+                    foreach (var file in field.AsAttachmentList())
+                    {
+                        var attachmentFileInfoResponse = await _client.GetFileInfoAsync(recordId, fieldId, file.FileId);
+                        var attachmentFileResponse = await _client.GetFileAsync(recordId, fieldId, file.FileId);
+
+                        if (attachmentFileInfoResponse.IsSuccessful is true && attachmentFileResponse.IsSuccessful is true)
+                        {
+                            files.Add(new File
+                            {
+                                RecordId = recordId,
+                                FieldId = fieldId,
+                                FileId = file.FileId,
+                                FileInfo = attachmentFileInfoResponse.Value,
+                                FileContent = attachmentFileResponse.Value,
+                            });
+                        }
+                    }
+                }
+
+                if (field.Type == ResultValueType.FileList)
+                {
+                    foreach (var id in field.AsFileList())
+                    {
+                        var imageFileInfoResponse = await _client.GetFileInfoAsync(recordId, fieldId, id);
+                        var imageFileResponse = await _client.GetFileAsync(recordId, fieldId, id);
+
+                        if (imageFileInfoResponse.IsSuccessful is true && imageFileResponse.IsSuccessful is true)
+                        {
+                            files.Add(new File
+                            {
+                                RecordId = recordId,
+                                FieldId = fieldId,
+                                FileId = id,
+                                FileInfo = imageFileInfoResponse.Value,
+                                FileContent = imageFileResponse.Value,
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        return files;
+    }
 }

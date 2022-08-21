@@ -93,4 +93,21 @@ public static class Prompt
 
         return recordIds;
     }
+
+    public static bool IsValidSource(string source)
+    {
+        try
+        {
+            if (!Source.IsValid(source))
+            {
+                throw new ApplicationException($"{source} is not a valid source. Please pass one of the following for the source argument: {Source.App}, {Source.Report}, or {Source.Records}");
+            }
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            return false;
+        }
+    }
 }
