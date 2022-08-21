@@ -28,7 +28,9 @@ public class Program
 
         if (source == Source.App)
         {
-            var pagingRequest = new PagingRequest(1, 50);
+            var currentPage = 1;
+            var totalPages = 1;
+            var pagingRequest = new PagingRequest(currentPage, 1);
 
             var request = new GetRecordsByAppRequest
             {
@@ -38,9 +40,6 @@ public class Program
                 PagingRequest = pagingRequest,
             };
 
-            var currentPage = 0;
-            var totalPages = 0;
-
             do
             {
                 Console.Write($"Getting records for {appId}...");
@@ -49,26 +48,21 @@ public class Program
 
                 if (response.IsSuccessful is true)
                 {
-                    currentPage = response.Value.PageNumber;
                     totalPages = response.Value.TotalPages;
                     var records = response.Value.Items;
 
-                    Console.WriteLine($"done. (Found {records.Count})");
+                    Console.WriteLine($"succeeded. (page {currentPage} of {totalPages})");
 
-                    var files = await onspringService.GetFiles(records);
-
-                    foreach (var file in files)
-                    {
-                        file.Save();
-                    }
-
-                    request.PagingRequest.PageNumber++;
+                    await onspringService.GetAndSaveFiles(records);
                 }
                 else
                 {
-                    return;
+                    Console.WriteLine($"failed. (page {currentPage} of {totalPages})");
                 }
-            } while(currentPage != totalPages);
+
+                currentPage++;
+
+            } while (currentPage <= totalPages);
         }
 
         if (source == Source.Report)

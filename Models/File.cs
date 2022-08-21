@@ -8,14 +8,25 @@ public class File
     public GetFileInfoResponse? FileInfo { get; set; }
     public GetFileResponse? FileContent { get; set; }
 
-    public async void Save()
+    public async Task Save()
     {
-        var outputDirectory = GetOutputDirectory();
-        Directory.CreateDirectory(outputDirectory);
-        var filePath = GetFilePath(outputDirectory, RecordId, FieldId, FileId, FileInfo!.Name);
-        var fileStream = System.IO.File.Create(filePath);
-        await FileContent!.Stream.CopyToAsync(fileStream);
-        await fileStream.DisposeAsync();
+        Console.Write($"Saving File {FileId} for Field {FieldId} for Record {RecordId}...");
+
+        try
+        {
+            var outputDirectory = GetOutputDirectory();
+            Directory.CreateDirectory(outputDirectory);
+            var filePath = GetFilePath(outputDirectory, RecordId, FieldId, FileId, FileInfo!.Name);
+            var fileStream = System.IO.File.Create(filePath);
+            await FileContent!.Stream.CopyToAsync(fileStream);
+            await fileStream.DisposeAsync();
+
+            Console.WriteLine("succeeded.");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"failed. ({e.Message})");
+        }
     }
 
     private string GetOutputDirectory()

@@ -59,10 +59,8 @@ public class OnspringService
         return await _client.GetRecordsForAppAsync(request);
     }
 
-    public async Task<List<File>> GetFiles(List<ResultRecord> records)
+    public async Task GetAndSaveFiles(List<ResultRecord> records)
     {
-        var files = new List<File>();
-
         foreach (var record in records)
         {
             var recordId = record.RecordId;
@@ -70,51 +68,46 @@ public class OnspringService
             foreach (var field in record.FieldData)
             {
                 var fieldId = field.FieldId;
+                var fileIds = new List<int>();
 
                 if (field.Type == ResultValueType.AttachmentList)
                 {
-                    foreach (var file in field.AsAttachmentList())
-                    {
-                        var attachmentFileInfoResponse = await _client.GetFileInfoAsync(recordId, fieldId, file.FileId);
-                        var attachmentFileResponse = await _client.GetFileAsync(recordId, fieldId, file.FileId);
-
-                        if (attachmentFileInfoResponse.IsSuccessful is true && attachmentFileResponse.IsSuccessful is true)
-                        {
-                            files.Add(new File
-                            {
-                                RecordId = recordId,
-                                FieldId = fieldId,
-                                FileId = file.FileId,
-                                FileInfo = attachmentFileInfoResponse.Value,
-                                FileContent = attachmentFileResponse.Value,
-                            });
-                        }
-                    }
+                    fileIds.AddRange(field.AsAttachmentList().Select(file => file.FileId).ToList());
                 }
 
                 if (field.Type == ResultValueType.FileList)
                 {
-                    foreach (var id in field.AsFileList())
-                    {
-                        var imageFileInfoResponse = await _client.GetFileInfoAsync(recordId, fieldId, id);
-                        var imageFileResponse = await _client.GetFileAsync(recordId, fieldId, id);
+                    fileIds.AddRange(field.AsFileList());
+                }
 
-                        if (imageFileInfoResponse.IsSuccessful is true && imageFileResponse.IsSuccessful is true)
+                foreach (var id in fileIds)
+                {
+                    Console.Write($"Getting File {id} for Field {fieldId} for Record {recordId}...");
+
+                    var fileInfoResponse = await _client.GetFileInfoAsync(recordId, fieldId, id);
+                    var fileResponse = await _client.GetFileAsync(recordId, fieldId, id);
+
+                    if (fileInfoResponse.IsSuccessful is true && fileResponse.IsSuccessful is true)
+                    {
+                        Console.WriteLine("succeeded.");
+
+                        var file = new File
                         {
-                            files.Add(new File
-                            {
-                                RecordId = recordId,
-                                FieldId = fieldId,
-                                FileId = id,
-                                FileInfo = imageFileInfoResponse.Value,
-                                FileContent = imageFileResponse.Value,
-                            });
-                        }
+                            RecordId = recordId,
+                            FieldId = fieldId,
+                            FileId = id,
+                            FileInfo = fileInfoResponse.Value,
+                            FileContent = fileResponse.Value,
+                        };
+
+                        await file.Save();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"failed.");
                     }
                 }
             }
         }
-
-        return files;
     }
 }
