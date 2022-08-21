@@ -53,7 +53,7 @@ public class Program
                     totalPages = response.Value.TotalPages;
                     var records = response.Value.Items;
 
-                    Console.WriteLine($"done. (Found {records.Count})")
+                    Console.WriteLine($"done. (Found {records.Count})");
 
                     var files = await onspringService.GetFiles(records);
 
