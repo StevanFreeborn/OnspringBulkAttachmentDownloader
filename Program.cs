@@ -28,9 +28,8 @@ public class Program
 
         if (source == Source.App)
         {
-            var currentPage = 1;
             var totalPages = 1;
-            var pagingRequest = new PagingRequest(currentPage, 1);
+            var pagingRequest = new PagingRequest(1, 50);
 
             var request = new GetRecordsByAppRequest
             {
@@ -39,6 +38,8 @@ public class Program
                 DataFormat = DataFormat.Raw,
                 PagingRequest = pagingRequest,
             };
+
+            var currentPage = request.PagingRequest.PageNumber;
 
             do
             {
@@ -60,7 +61,8 @@ public class Program
                     Console.WriteLine($"failed. (page {currentPage} of {totalPages})");
                 }
 
-                currentPage++;
+                request.PagingRequest.PageNumber++;
+                currentPage = request.PagingRequest.PageNumber;
 
             } while (currentPage <= totalPages);
         }

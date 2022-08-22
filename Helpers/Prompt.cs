@@ -43,7 +43,7 @@ public static class Prompt
 
         while (reportId is 0)
         {
-            Console.Write("Please enter your source's id: ");
+            Console.Write("Please enter your report's id: ");
             var reportIdInput = Console.ReadLine();
 
             if (int.TryParse(reportIdInput, out int result))
