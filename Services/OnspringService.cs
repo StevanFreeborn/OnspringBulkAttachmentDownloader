@@ -59,6 +59,11 @@ public class OnspringService
         return await _client.GetRecordsForAppAsync(request);
     }
 
+    public async Task<ApiResponse<ReportData>> GetReportRecords(int reportId)
+    {
+        return await _client.GetReportAsync(reportId);
+    }
+
     public async Task GetAndSaveFiles(List<ResultRecord> records)
     {
         foreach (var record in records)

@@ -69,12 +69,16 @@ public class Program
 
         if (source == Source.Report)
         {
-            var sourceId = Prompt.GetReportSource();
+            var reportId = Prompt.GetReportId();
+            
+            Console.WriteLine($"Getting records for Report {reportId}...");
+
+            var response = onspringService.GetReportRecords(reportId);
         }
 
         if (source == Source.Records)
         {
-            var sourceIds = Prompt.GetRecordsSource();
+            var sourceIds = Prompt.GetRecordIds();
         }
     }
 }

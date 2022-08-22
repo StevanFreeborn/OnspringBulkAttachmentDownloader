@@ -37,7 +37,7 @@ public static class Prompt
         return source;
     }
 
-    public static int GetReportSource()
+    public static int GetReportId()
     {
         var reportId = 0;
 
@@ -59,7 +59,7 @@ public static class Prompt
         return reportId;
     }
 
-    public static List<int> GetRecordsSource()
+    public static List<int> GetRecordIds()
     {
         var recordIds = new List<int>();
 
