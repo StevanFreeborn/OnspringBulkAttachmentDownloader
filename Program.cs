@@ -1,6 +1,4 @@
 ﻿using CommandDotNet;
-using Onspring.API.SDK.Models;
-using Onspring.API.SDK.Enums;
 
 public class Program
 {
@@ -12,17 +10,12 @@ public class Program
     }
 
     [DefaultCommand]
-    public async Task GetAttachments(
-        [Operand(Description = "The id for the app where the attachments are held.")]
-        int appId,
-        [Operand(Description = "Indicates whether the attachments will be collected from all records in an app, all records in a report, or specific records.")]
-        string source)
+    public async Task GetAttachments()
     {
-        source = source.ToLower();
-
-        if (Prompt.IsValidSource(source) is false) return;
-
         var apiKey = Prompt.GetApiKey();
+        var appId = Prompt.GetAppId();
+        var source = Prompt.GetSource();
+
         var outputDirectory = FileHelper.GetOutputDirectory();
         var onspringService = new OnspringService(apiKey);
         var fileFieldIds = await onspringService.GetFileFieldsForApp(appId);

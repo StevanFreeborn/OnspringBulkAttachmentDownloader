@@ -28,13 +28,35 @@ public static class Prompt
 
                 if (!Source.IsValid(source))
                 {
-                    Console.WriteLine($"{source} is not a valid source. Please pass one of the following options: {Source.App}, {Source.Report}, or {Source.Records}");
+                    Console.WriteLine($"{source} is not a valid source. Please enter one of the following options: {Source.App}, {Source.Report}, or {Source.Records}");
                     source = null;
                 }
             }
         }
 
         return source;
+    }
+
+    public static int GetAppId()
+    {
+        var appId = 0;
+
+        while (appId is 0)
+        {
+            Console.Write("Please enter your app id: ");
+            var appIdInput = Console.ReadLine();
+
+            if (int.TryParse(appIdInput, out int result))
+            {
+                appId = result;
+            }
+            else
+            {
+                Console.WriteLine($"{appIdInput} is not a valid report id.");
+            }
+        }
+
+        return appId;
     }
 
     public static int GetReportId()
@@ -63,7 +85,7 @@ public static class Prompt
     {
         var recordIds = new List<int>();
 
-        while(recordIds.Count < 1)
+        while (recordIds.Count < 1)
         {
             Console.Write("Please enter your record ids: ");
             var recordIdsInput = Console.ReadLine();
@@ -74,7 +96,7 @@ public static class Prompt
                 .Split(',', StringSplitOptions.TrimEntries)
                 .ToList();
 
-                foreach(var id in idStrings)
+                foreach (var id in idStrings)
                 {
                     var parsedId = 0;
 
@@ -92,25 +114,5 @@ public static class Prompt
         }
 
         return recordIds;
-    }
-
-    public static bool IsValidSource(string source)
-    {
-        var isValid = false;
-
-        try
-        {
-            if (!Source.IsValid(source))
-            {
-                throw new ApplicationException($"{source} is not a valid source. Please pass one of the following for the source argument: {Source.App}, {Source.Report}, or {Source.Records}");
-            }
-            isValid = true;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-        }
-
-        return isValid;
     }
 }
