@@ -3,6 +3,10 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
 
+var apiKey = Prompt.GetApiKey();
+var appId = Prompt.GetAppId();
+var source = Prompt.GetSource();
+
 var outputDirectory = FileHelper.GetOutputDirectory();
 var logPath = Path.Combine(outputDirectory, "log.json");
 
@@ -11,10 +15,6 @@ Log.Logger = new LoggerConfiguration()
 .WriteTo.File(new RenderedCompactJsonFormatter(), logPath)
 .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information)
 .CreateLogger();
-
-var apiKey = Prompt.GetApiKey();
-var appId = Prompt.GetAppId();
-var source = Prompt.GetSource();
 
 var onspringService = new OnspringService(apiKey);
 var fileFieldIds = await onspringService.GetFileFieldsForApp(appId);
