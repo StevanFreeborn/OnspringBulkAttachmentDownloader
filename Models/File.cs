@@ -1,4 +1,5 @@
 using Onspring.API.SDK.Models;
+using Serilog;
 
 public class File
 {
@@ -10,7 +11,7 @@ public class File
 
     public async Task Save(string outputDirectory)
     {
-        Console.Write($"Saving File {FileId} for Field {FieldId} for Record {RecordId}...");
+        Log.Information($"Saving File {FileId} for Field {FieldId} for Record {RecordId}...");
 
         try
         {
@@ -20,11 +21,11 @@ public class File
             await FileContent!.Stream.CopyToAsync(fileStream);
             await fileStream.DisposeAsync();
 
-            Console.WriteLine("succeeded.");
+            Log.Information("succeeded.");
         }
         catch (Exception e)
         {
-            Console.WriteLine($"failed. ({e.Message})");
+            Log.Error($"failed. ({e.Message})");
         }
     }
 

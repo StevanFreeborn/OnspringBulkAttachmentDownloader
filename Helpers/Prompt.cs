@@ -1,3 +1,5 @@
+using Serilog;
+
 public static class Prompt
 {
     public static string GetApiKey()
@@ -28,7 +30,7 @@ public static class Prompt
 
                 if (!Source.IsValid(source))
                 {
-                    Console.WriteLine($"{source} is not a valid source. Please enter one of the following options: {Source.App}, {Source.Report}, or {Source.Records}");
+                    Log.Error($"{source} is not a valid source. Please enter one of the following options: {Source.App}, {Source.Report}, or {Source.Records}");
                     source = null;
                 }
             }
@@ -52,7 +54,7 @@ public static class Prompt
             }
             else
             {
-                Console.WriteLine($"{appIdInput} is not a valid report id.");
+                Log.Error($"{appIdInput} is not a valid report id. Please try entering your app id again.");
             }
         }
 
@@ -74,7 +76,7 @@ public static class Prompt
             }
             else
             {
-                Console.WriteLine($"{reportIdInput} is not a valid report id.");
+                Log.Error($"{reportIdInput} is not a valid report id. Please try entering your report id again");
             }
         }
 
@@ -102,7 +104,7 @@ public static class Prompt
 
                     if (!int.TryParse(id, out int result))
                     {
-                        Console.WriteLine($"{id} is an invalid record id. Please try entering your record ids again.");
+                        Log.Error($"{id} is an invalid record id. Please try entering your record ids again.");
                         recordIds.Clear();
                         break;
                     }

@@ -1,6 +1,7 @@
 using Onspring.API.SDK;
 using Onspring.API.SDK.Models;
 using Onspring.API.SDK.Enums;
+using Serilog;
 
 public class OnspringService
 {
@@ -24,7 +25,7 @@ public class OnspringService
 
             do
             {
-                Console.Write($"Getting file field ids for app {appId}...");
+                Log.Information($"Getting file field ids for app {appId}...");
 
                 var response = await _client.GetFieldsForAppAsync(appId, pagingRequest);
 
@@ -37,7 +38,7 @@ public class OnspringService
                     .Select(field => field.Id)
                     .ToList();
 
-                    Console.WriteLine($"succeeded. (page {currentPage} of {totalPages} - {fields.Count} file fields found)");
+                    Log.Information($"succeeded. (page {currentPage} of {totalPages} - {fields.Count} file fields found)");
 
                     fieldIds.AddRange(fields);
                 }
@@ -53,7 +54,7 @@ public class OnspringService
         }
         catch (Exception e)
         {
-            Console.WriteLine($"failed. ({e.Message})");
+            Log.Error($"failed. ({e.Message})");
         }
 
         return fieldIds;
@@ -78,7 +79,7 @@ public class OnspringService
 
             do
             {
-                Console.Write($"Getting records for {appId}...");
+                Log.Information($"Getting records for {appId}...");
 
                 var response = await _client.GetRecordsForAppAsync(request);
 
@@ -87,7 +88,7 @@ public class OnspringService
                     totalPages = response.Value.TotalPages;
                     var records = response.Value.Items;
 
-                    Console.WriteLine($"succeeded. (page {currentPage} of {totalPages})");
+                    Log.Information($"succeeded. (page {currentPage} of {totalPages})");
                     
                     await GetAndSaveFiles(records, outputDirectory);
                 }
@@ -103,7 +104,7 @@ public class OnspringService
         }
         catch (Exception e)
         {
-            Console.WriteLine($"failed. ({e.Message})");
+            Log.Error($"failed. ({e.Message})");
         }
     }
 
@@ -111,7 +112,7 @@ public class OnspringService
     {
         try
         {
-            Console.Write($"Getting record ids from Report {reportId}...");
+            Log.Information($"Getting record ids from Report {reportId}...");
 
             var reportResponse = await _client.GetReportAsync(reportId);
 
@@ -119,7 +120,7 @@ public class OnspringService
             {
                 var allRecordIds = reportResponse.Value.Rows.Select(row => row.RecordId).ToList();
 
-                Console.WriteLine($"succeeded. ({allRecordIds.Count} record ids found)");
+                Log.Information($"succeeded. ({allRecordIds.Count} record ids found)");
 
                 var pageSize = 50;
                 var currentPage = 0;
@@ -129,7 +130,7 @@ public class OnspringService
                 {
                     var recordIds = allRecordIds.Skip(pageSize * currentPage).Take(pageSize).ToList();
 
-                    Console.Write($"Getting records for Report {reportId}...");
+                    Log.Information($"Getting records for Report {reportId}...");
 
                     var request = new GetRecordsRequest
                     {
@@ -143,7 +144,7 @@ public class OnspringService
 
                     if (response.IsSuccessful is true)
                     {
-                        Console.WriteLine($"succeeded. (page {currentPage + 1} of {totalPages})");
+                        Log.Information($"succeeded. (page {currentPage + 1} of {totalPages})");
 
                         var records = response.Value.Items;
                         await GetAndSaveFiles(records, outputDirectory);
@@ -163,7 +164,7 @@ public class OnspringService
         }
         catch (Exception e)
         {
-            Console.WriteLine($"failed. ({e.Message})");
+            Log.Error($"failed. ({e.Message})");
         }
     }
 
@@ -190,7 +191,7 @@ public class OnspringService
 
                 foreach (var id in fileIds)
                 {
-                    Console.Write($"Getting File {id} for Field {fieldId} for Record {recordId}...");
+                    Log.Information($"Getting File {id} for Field {fieldId} for Record {recordId}...");
 
                     var fileInfoResponse = await _client.GetFileInfoAsync(recordId, fieldId, id);
                     var fileResponse = await _client.GetFileAsync(recordId, fieldId, id);
@@ -198,7 +199,7 @@ public class OnspringService
                     {
                         if (fileInfoResponse.IsSuccessful is true && fileResponse.IsSuccessful is true)
                         {
-                            Console.WriteLine("succeeded.");
+                            Log.Information("succeeded.");
 
                             var file = new File
                             {
@@ -218,7 +219,7 @@ public class OnspringService
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine($"failed. ({e.Message})");
+                        Log.Error($"failed. ({e.Message})");
                     }
                 }
             }
