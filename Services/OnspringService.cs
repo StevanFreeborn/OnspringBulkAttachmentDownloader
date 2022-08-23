@@ -59,7 +59,7 @@ public class OnspringService
         return fieldIds;
     }
 
-    public async Task GetAppFiles(int appId, List<int> fileFieldIds)
+    public async Task GetAppFiles(int appId, List<int> fileFieldIds, string outputDirectory)
     {
         try
         {
@@ -88,8 +88,8 @@ public class OnspringService
                     var records = response.Value.Items;
 
                     Console.WriteLine($"succeeded. (page {currentPage} of {totalPages})");
-
-                    await GetAndSaveFiles(records);
+                    
+                    await GetAndSaveFiles(records, outputDirectory);
                 }
                 else
                 {
@@ -107,7 +107,7 @@ public class OnspringService
         }
     }
 
-    public async Task GetReportFiles(int appId, List<int> fileFieldIds, int reportId)
+    public async Task GetReportFiles(int appId, List<int> fileFieldIds, int reportId, string outputDirectory)
     {
         try
         {
@@ -146,8 +146,7 @@ public class OnspringService
                         Console.WriteLine($"succeeded. (page {currentPage + 1} of {totalPages})");
 
                         var records = response.Value.Items;
-
-                        await GetAndSaveFiles(records);
+                        await GetAndSaveFiles(records, outputDirectory);
                     }
                     else
                     {
@@ -168,10 +167,8 @@ public class OnspringService
         }
     }
 
-    private async Task GetAndSaveFiles(List<ResultRecord> records)
+    private async Task GetAndSaveFiles(List<ResultRecord> records, string outputDirectory)
     {
-        var outputDirectory = FileHelper.GetOutputDirectory();
-
         foreach (var record in records)
         {
             var recordId = record.RecordId;
