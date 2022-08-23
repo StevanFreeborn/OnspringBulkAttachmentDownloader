@@ -8,13 +8,12 @@ public class File
     public GetFileInfoResponse? FileInfo { get; set; }
     public GetFileResponse? FileContent { get; set; }
 
-    public async Task Save()
+    public async Task Save(string outputDirectory)
     {
         Console.Write($"Saving File {FileId} for Field {FieldId} for Record {RecordId}...");
 
         try
         {
-            var outputDirectory = GetOutputDirectory();
             Directory.CreateDirectory(outputDirectory);
             var filePath = GetFilePath(outputDirectory, RecordId, FieldId, FileId, FileInfo!.Name);
             var fileStream = System.IO.File.Create(filePath);
@@ -27,13 +26,6 @@ public class File
         {
             Console.WriteLine($"failed. ({e.Message})");
         }
-    }
-
-    private string GetOutputDirectory()
-    {
-        var currentDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
-        var outputDirectory = $"{DateTime.Now.ToString("yyyyMMddHHmm")}-output";
-        return Path.Combine(currentDirectory, outputDirectory); ;
     }
 
     private string GetFilePath(string outputDirectory, int recordId, int fieldId, int fileId, string name)

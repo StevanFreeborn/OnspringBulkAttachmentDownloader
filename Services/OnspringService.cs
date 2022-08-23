@@ -170,6 +170,8 @@ public class OnspringService
 
     private async Task GetAndSaveFiles(List<ResultRecord> records)
     {
+        var outputDirectory = FileHelper.GetOutputDirectory();
+
         foreach (var record in records)
         {
             var recordId = record.RecordId;
@@ -210,7 +212,7 @@ public class OnspringService
                                 FileContent = fileResponse.Value,
                             };
 
-                            await file.Save();
+                            await file.Save(outputDirectory);
                         }
                         else
                         {
