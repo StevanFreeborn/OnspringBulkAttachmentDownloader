@@ -96,18 +96,21 @@ public static class Prompt
 
     public static bool IsValidSource(string source)
     {
+        var isValid = false;
+
         try
         {
             if (!Source.IsValid(source))
             {
                 throw new ApplicationException($"{source} is not a valid source. Please pass one of the following for the source argument: {Source.App}, {Source.Report}, or {Source.Records}");
             }
-            return true;
+            isValid = true;
         }
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
-            return false;
         }
+
+        return isValid;
     }
 }

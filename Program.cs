@@ -28,52 +28,14 @@ public class Program
 
         if (source == Source.App)
         {
-            var totalPages = 1;
-            var pagingRequest = new PagingRequest(1, 50);
-
-            var request = new GetRecordsByAppRequest
-            {
-                AppId = appId,
-                FieldIds = fileFieldIds,
-                DataFormat = DataFormat.Raw,
-                PagingRequest = pagingRequest,
-            };
-
-            var currentPage = request.PagingRequest.PageNumber;
-
-            do
-            {
-                Console.Write($"Getting records for {appId}...");
-
-                var response = await onspringService.GetAppRecords(request);
-
-                if (response.IsSuccessful is true)
-                {
-                    totalPages = response.Value.TotalPages;
-                    var records = response.Value.Items;
-
-                    Console.WriteLine($"succeeded. (page {currentPage} of {totalPages})");
-
-                    await onspringService.GetAndSaveFiles(records);
-                }
-                else
-                {
-                    Console.WriteLine($"failed. (page {currentPage} of {totalPages})");
-                }
-
-                request.PagingRequest.PageNumber++;
-                currentPage = request.PagingRequest.PageNumber;
-
-            } while (currentPage <= totalPages);
+            await onspringService.GetAppFiles(appId, fileFieldIds);
         }
 
         if (source == Source.Report)
         {
             var reportId = Prompt.GetReportId();
-            
-            Console.WriteLine($"Getting records for Report {reportId}...");
 
-            var response = onspringService.GetReportRecords(reportId);
+            await onspringService.GetReportFiles(appId, fileFieldIds, reportId);
         }
 
         if (source == Source.Records)

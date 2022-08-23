@@ -14,57 +14,161 @@ public class OnspringService
 
     public async Task<List<int>> GetFileFieldsForApp(int appId)
     {
-        Console.Write($"Getting file field ids for app {appId}...");
+        var fieldIds = new List<int>();
 
-        var pagingRequest = new PagingRequest(1, 50);
-
-        var response = await _client.GetFieldsForAppAsync(appId, pagingRequest);
-
-        if (response.IsSuccessful is false) return new List<int>();
-
-        var fields = response.Value.Items;
-
-        if (response.Value.TotalPages > 1)
+        try
         {
-            var currentPage = response.Value.PageNumber;
-            var totalPages = response.Value.TotalPages;
+            var totalPages = 1;
+            var pagingRequest = new PagingRequest(1, 50);
+            var currentPage = pagingRequest.PageNumber;
 
-            while (currentPage != totalPages)
+            do
             {
-                pagingRequest.PageNumber++;
-                response = await _client.GetFieldsForAppAsync(appId, pagingRequest);
+                Console.Write($"Getting file field ids for app {appId}...");
 
-                foreach (var field in response.Value.Items)
+                var response = await _client.GetFieldsForAppAsync(appId, pagingRequest);
+
+                if (response.IsSuccessful is true)
                 {
-                    fields.Add(field);
+                    totalPages = response.Value.TotalPages;
+
+                    var fields = response.Value.Items
+                    .Where(field => field.Type == FieldType.Attachment || field.Type == FieldType.Image)
+                    .Select(field => field.Id)
+                    .ToList();
+
+                    Console.WriteLine($"succeeded. (page {currentPage} of {totalPages} - {fields.Count} file fields found)");
+
+                    fieldIds.AddRange(fields);
+                }
+                else
+                {
+                    throw new ApplicationException($"Status Code: {response.StatusCode} - {response.Message})");
                 }
 
-                currentPage = response.Value.PageNumber;
-                totalPages = response.Value.TotalPages;
-            }
+                pagingRequest.PageNumber++;
+                currentPage = pagingRequest.PageNumber;
+
+            } while (currentPage <= totalPages);
         }
-
-        var fieldIds = fields
-        .Where(field => field.Type == FieldType.Attachment || field.Type == FieldType.Image)
-        .Select(field => field.Id)
-        .ToList();
-
-        Console.WriteLine($"done. ({fieldIds.Count} file fields found)");
+        catch (Exception e)
+        {
+            Console.WriteLine($"failed. ({e.Message})");
+        }
 
         return fieldIds;
     }
 
-    public async Task<ApiResponse<GetPagedRecordsResponse>> GetAppRecords(GetRecordsByAppRequest request)
+    public async Task GetAppFiles(int appId, List<int> fileFieldIds)
     {
-        return await _client.GetRecordsForAppAsync(request);
+        try
+        {
+            var totalPages = 1;
+            var pagingRequest = new PagingRequest(1, 50);
+
+            var request = new GetRecordsByAppRequest
+            {
+                AppId = appId,
+                FieldIds = fileFieldIds,
+                DataFormat = DataFormat.Raw,
+                PagingRequest = pagingRequest,
+            };
+
+            var currentPage = request.PagingRequest.PageNumber;
+
+            do
+            {
+                Console.Write($"Getting records for {appId}...");
+
+                var response = await _client.GetRecordsForAppAsync(request);
+
+                if (response.IsSuccessful is true)
+                {
+                    totalPages = response.Value.TotalPages;
+                    var records = response.Value.Items;
+
+                    Console.WriteLine($"succeeded. (page {currentPage} of {totalPages})");
+
+                    await GetAndSaveFiles(records);
+                }
+                else
+                {
+                    throw new ApplicationException($"failed. (page {currentPage} of {totalPages} - Status Code: {response.StatusCode} - {response.Message})");
+                }
+
+                request.PagingRequest.PageNumber++;
+                currentPage = request.PagingRequest.PageNumber;
+
+            } while (currentPage <= totalPages);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"failed. ({e.Message})");
+        }
     }
 
-    public async Task<ApiResponse<ReportData>> GetReportRecords(int reportId)
+    public async Task GetReportFiles(int appId, List<int> fileFieldIds, int reportId)
     {
-        return await _client.GetReportAsync(reportId);
+        try
+        {
+            Console.Write($"Getting record ids from Report {reportId}...");
+
+            var reportResponse = await _client.GetReportAsync(reportId);
+
+            if (reportResponse.IsSuccessful is true)
+            {
+                var allRecordIds = reportResponse.Value.Rows.Select(row => row.RecordId).ToList();
+
+                Console.WriteLine($"succeeded. ({allRecordIds.Count} record ids found)");
+
+                var pageSize = 50;
+                var currentPage = 0;
+                var totalPages = allRecordIds.Count / pageSize;
+
+                while (currentPage < totalPages)
+                {
+                    var recordIds = allRecordIds.Skip(pageSize * currentPage).Take(pageSize).ToList();
+
+                    Console.Write($"Getting records for Report {reportId}...");
+
+                    var request = new GetRecordsRequest
+                    {
+                        AppId = appId,
+                        RecordIds = recordIds,
+                        FieldIds = fileFieldIds,
+                        DataFormat = DataFormat.Raw,
+                    };
+
+                    var response = await _client.GetRecordsAsync(request);
+
+                    if (response.IsSuccessful is true)
+                    {
+                        Console.WriteLine($"succeeded. (page {currentPage + 1} of {totalPages})");
+
+                        var records = response.Value.Items;
+
+                        await GetAndSaveFiles(records);
+                    }
+                    else
+                    {
+                        throw new ApplicationException($"failed. (page {currentPage + 1} of {totalPages})");
+                    }
+
+                    currentPage++;
+                }
+            }
+            else
+            {
+                throw new ApplicationException($"failed. (Status Code: {reportResponse.StatusCode} - {reportResponse.Message})");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"failed. ({e.Message})");
+        }
     }
 
-    public async Task GetAndSaveFiles(List<ResultRecord> records)
+    private async Task GetAndSaveFiles(List<ResultRecord> records)
     {
         foreach (var record in records)
         {
@@ -91,25 +195,31 @@ public class OnspringService
 
                     var fileInfoResponse = await _client.GetFileInfoAsync(recordId, fieldId, id);
                     var fileResponse = await _client.GetFileAsync(recordId, fieldId, id);
-
-                    if (fileInfoResponse.IsSuccessful is true && fileResponse.IsSuccessful is true)
+                    try
                     {
-                        Console.WriteLine("succeeded.");
-
-                        var file = new File
+                        if (fileInfoResponse.IsSuccessful is true && fileResponse.IsSuccessful is true)
                         {
-                            RecordId = recordId,
-                            FieldId = fieldId,
-                            FileId = id,
-                            FileInfo = fileInfoResponse.Value,
-                            FileContent = fileResponse.Value,
-                        };
+                            Console.WriteLine("succeeded.");
 
-                        await file.Save();
+                            var file = new File
+                            {
+                                RecordId = recordId,
+                                FieldId = fieldId,
+                                FileId = id,
+                                FileInfo = fileInfoResponse.Value,
+                                FileContent = fileResponse.Value,
+                            };
+
+                            await file.Save();
+                        }
+                        else
+                        {
+                            throw new ApplicationException($"failed. (File Info Status Code: {fileInfoResponse.StatusCode} - {fileInfoResponse.Message}, File Status Code: {fileResponse.StatusCode} - {fileResponse.Message})");
+                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        Console.WriteLine($"failed.");
+                        Console.WriteLine($"failed. ({e.Message})");
                     }
                 }
             }
