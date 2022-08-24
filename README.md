@@ -9,9 +9,10 @@ This is an unofficial Onspring tool. It was not built in consultation with Onspr
 
 This tool makes use of version 2 of the Onspring API. Therefore you will need an API key to be able to utilize the tool. API keys may be obtained by an Onspring user with permissions to atleast read API Keys for your instance, using the following instructions:
 
-1. Within Onspring, navigate to Administration | Security | API Keys.
+1. Within Onspring, navigate to [/Admin/Security/ApiKey](/Admin/Security/ApiKey).
 2. On the list page, add a new API Key (requires Create permissions) or click an existing API Key to view its details.
-3. On the details page for an API Key, expand the Developer Information section. Copy the X-ApiKey Header value from this section.
+3. On the details page for an API Key, click on the Developer Information tab. 
+4. Copy the X-ApiKey Header value from this section.
 
 **Important:**
 
