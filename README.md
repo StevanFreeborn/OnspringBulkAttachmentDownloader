@@ -11,7 +11,7 @@ This tool makes use of version 2 of the Onspring API. Therefore you will need an
 
 1. Within Onspring, navigate to [/Admin/Security/ApiKey](/Admin/Security/ApiKey).
 2. On the list page, add a new API Key (requires Create permissions) or click an existing API Key to view its details.
-3. On the details page for an API Key, click on the Developer Information tab. 
+3. On the details page for an API Key, click on the Developer Information tab.
 4. Copy the X-ApiKey Header value from this section.
 
 **Important:**
