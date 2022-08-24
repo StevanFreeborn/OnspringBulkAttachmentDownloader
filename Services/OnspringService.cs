@@ -125,7 +125,7 @@ public class OnspringService
                 var pageSize = 50;
                 var currentPage = 0;
                 var correctedPage = currentPage + 1;
-                var totalPages = allRecordIds.Count / pageSize;
+                var totalPages = Math.Ceiling((double)allRecordIds.Count / pageSize);
 
                 do
                 {
