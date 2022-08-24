@@ -24,3 +24,13 @@ This tool makes use of version 2 of the Onspring API. Therefore you will need an
 ## API Usage Considerations
 
 ## Installation
+
+## General Usage
+
+### Getting Attachments for Specific Records
+
+### Getting Attachments for Records in a Report
+
+### Getting Attachments for Records in an App
+
+## Log
