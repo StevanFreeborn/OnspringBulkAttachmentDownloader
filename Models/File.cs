@@ -11,8 +11,6 @@ public class File
 
     public async Task Save(string outputDirectory)
     {
-        Log.Information($"Saving File {FileId} for Field {FieldId} for Record {RecordId}...");
-
         try
         {
             Directory.CreateDirectory(outputDirectory);
@@ -21,11 +19,12 @@ public class File
             await FileContent!.Stream.CopyToAsync(fileStream);
             await fileStream.DisposeAsync();
 
-            Log.Information("succeeded.");
+            Log.Information("Successfully saved File {FileId} for Field {FieldId} for Record {RecordId}.", FileId, FieldId, RecordId);
         }
         catch (Exception e)
         {
-            Log.Error($"failed. ({e.Message})");
+            var message = e.Message;
+            Log.Error("Failed to save File {FileId} for Field {FieldId} for Record {RecordId}. ({message})", FileId, FieldId, RecordId, message);
         }
     }
 

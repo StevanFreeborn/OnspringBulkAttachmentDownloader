@@ -17,16 +17,14 @@ public class OnspringService
     {
         var fieldIds = new List<int>();
 
-        try
+        var totalPages = 1;
+        var pagingRequest = new PagingRequest(1, 50);
+        var currentPage = pagingRequest.PageNumber;
+
+        do
         {
-            var totalPages = 1;
-            var pagingRequest = new PagingRequest(1, 50);
-            var currentPage = pagingRequest.PageNumber;
-
-            do
+            try
             {
-                Log.Information($"Getting file field ids for app {appId}...");
-
                 var response = await _client.GetFieldsForAppAsync(appId, pagingRequest);
 
                 if (response.IsSuccessful is true)
@@ -38,49 +36,50 @@ public class OnspringService
                     .Select(field => field.Id)
                     .ToList();
 
-                    Log.Information($"succeeded. (page {currentPage} of {totalPages} - {fields.Count} file fields found)");
+                    var numOfFields = fields.Count;
+
+                    Log.Information("Successfully retrieved file field ids for App {appId}. (page {currentPage} of {totalPages} - {numOfFields} file fields found)", appId, currentPage, totalPages, numOfFields);
 
                     fieldIds.AddRange(fields);
                 }
                 else
                 {
-                    throw new ApplicationException($"Status Code: {response.StatusCode} - {response.Message})");
+                    throw new ApplicationException($"Status Code: {response.StatusCode} - {response.Message}");
                 }
+            }
+            catch (Exception e)
+            {
+                var message = e.Message;
+                Log.Error("Failed to retrieve file field ids for App {appId}. ({message})", appId, message);
+            }
 
-                pagingRequest.PageNumber++;
-                currentPage = pagingRequest.PageNumber;
+            pagingRequest.PageNumber++;
+            currentPage = pagingRequest.PageNumber;
 
-            } while (currentPage <= totalPages);
-        }
-        catch (Exception e)
-        {
-            Log.Error($"failed. ({e.Message})");
-        }
+        } while (currentPage <= totalPages);
 
         return fieldIds;
     }
 
     public async Task GetAppFiles(int appId, List<int> fileFieldIds, string outputDirectory)
     {
-        try
+        var totalPages = 1;
+        var pagingRequest = new PagingRequest(1, 50);
+
+        var request = new GetRecordsByAppRequest
         {
-            var totalPages = 1;
-            var pagingRequest = new PagingRequest(1, 50);
+            AppId = appId,
+            FieldIds = fileFieldIds,
+            DataFormat = DataFormat.Raw,
+            PagingRequest = pagingRequest,
+        };
 
-            var request = new GetRecordsByAppRequest
+        var currentPage = request.PagingRequest.PageNumber;
+
+        do
+        {
+            try
             {
-                AppId = appId,
-                FieldIds = fileFieldIds,
-                DataFormat = DataFormat.Raw,
-                PagingRequest = pagingRequest,
-            };
-
-            var currentPage = request.PagingRequest.PageNumber;
-
-            do
-            {
-                Log.Information($"Getting records for {appId}...");
-
                 var response = await _client.GetRecordsForAppAsync(request);
 
                 if (response.IsSuccessful is true)
@@ -88,49 +87,49 @@ public class OnspringService
                     totalPages = response.Value.TotalPages;
                     var records = response.Value.Items;
 
-                    Log.Information($"succeeded. (page {currentPage} of {totalPages})");
-                    
+                    Log.Information("Successfully retrieved records for App {appId}. (page {currentPage} of {totalPages})", appId, currentPage, totalPages);
+
                     await GetAndSaveFiles(records, outputDirectory);
                 }
                 else
                 {
-                    throw new ApplicationException($"failed. (page {currentPage} of {totalPages} - Status Code: {response.StatusCode} - {response.Message})");
+                    throw new ApplicationException($"Status Code: {response.StatusCode} - {response.Message}");
                 }
+            }
+            catch (Exception e)
+            {
+                var messge = e.Message;
+                Log.Error("Failed to retrieve records for App {appId}. (page {currentPage} of {totalPages} - {message})", appId, currentPage, totalPages);
+            }
 
-                request.PagingRequest.PageNumber++;
-                currentPage = request.PagingRequest.PageNumber;
+            request.PagingRequest.PageNumber++;
+            currentPage = request.PagingRequest.PageNumber;
 
-            } while (currentPage <= totalPages);
-        }
-        catch (Exception e)
-        {
-            Log.Error($"failed. ({e.Message})");
-        }
+        } while (currentPage <= totalPages);
     }
 
     public async Task GetReportFiles(int appId, List<int> fileFieldIds, int reportId, string outputDirectory)
     {
         try
         {
-            Log.Information($"Getting record ids from Report {reportId}...");
-
             var reportResponse = await _client.GetReportAsync(reportId);
 
             if (reportResponse.IsSuccessful is true)
             {
                 var allRecordIds = reportResponse.Value.Rows.Select(row => row.RecordId).ToList();
 
-                Log.Information($"succeeded. ({allRecordIds.Count} record ids found)");
+                var numOfRecords = allRecordIds.Count;
+
+                Log.Information("Successfully retrieved record ids from Report {reportId}. ({numOfRecords} record ids found)", reportId, numOfRecords);
 
                 var pageSize = 50;
                 var currentPage = 0;
+                var correctedPage = currentPage + 1;
                 var totalPages = allRecordIds.Count / pageSize;
 
                 while (currentPage < totalPages)
                 {
                     var recordIds = allRecordIds.Skip(pageSize * currentPage).Take(pageSize).ToList();
-
-                    Log.Information($"Getting records for Report {reportId}...");
 
                     var request = new GetRecordsRequest
                     {
@@ -140,18 +139,27 @@ public class OnspringService
                         DataFormat = DataFormat.Raw,
                     };
 
-                    var response = await _client.GetRecordsAsync(request);
-
-                    if (response.IsSuccessful is true)
+                    try
                     {
-                        Log.Information($"succeeded. (page {currentPage + 1} of {totalPages})");
+                        var response = await _client.GetRecordsAsync(request);
 
-                        var records = response.Value.Items;
-                        await GetAndSaveFiles(records, outputDirectory);
+                        if (response.IsSuccessful is true)
+                        {
+                            var records = response.Value.Items;
+
+                            Log.Information("Successfully retrieved records for Report {reportId} succeeded. (page {correctedPage} of {totalPages})", reportId, correctedPage, totalPages);
+
+                            await GetAndSaveFiles(records, outputDirectory);
+                        }
+                        else
+                        {
+                            throw new ApplicationException($"Status Code: {response.StatusCode} - {response.Message}");
+                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        throw new ApplicationException($"failed. (page {currentPage + 1} of {totalPages})");
+                        var message = e.Message;
+                        Log.Error("Failed to retrieve records for Report {reportId}. (page {correctedPage} of {totalPages} - {message})", reportId, correctedPage, totalPages, message);
                     }
 
                     currentPage++;
@@ -159,12 +167,13 @@ public class OnspringService
             }
             else
             {
-                throw new ApplicationException($"failed. (Status Code: {reportResponse.StatusCode} - {reportResponse.Message})");
+                throw new ApplicationException($"Status Code: {reportResponse.StatusCode} - {reportResponse.Message}");
             }
         }
         catch (Exception e)
         {
-            Log.Error($"failed. ({e.Message})");
+            var message = e.Message;
+            Log.Error("Failed to retrieve records for Report {reportId}. (message)", reportId, message);
         }
     }
 
@@ -191,16 +200,12 @@ public class OnspringService
 
                 foreach (var id in fileIds)
                 {
-                    Log.Information($"Getting File {id} for Field {fieldId} for Record {recordId}...");
-
                     var fileInfoResponse = await _client.GetFileInfoAsync(recordId, fieldId, id);
                     var fileResponse = await _client.GetFileAsync(recordId, fieldId, id);
                     try
                     {
                         if (fileInfoResponse.IsSuccessful is true && fileResponse.IsSuccessful is true)
                         {
-                            Log.Information("succeeded.");
-
                             var file = new File
                             {
                                 RecordId = recordId,
@@ -211,15 +216,18 @@ public class OnspringService
                             };
 
                             await file.Save(outputDirectory);
+
+                            Log.Information("Successfully saved File {id} for Field {fieldId} for Record {recordId}.", id, fieldId, recordId);
                         }
                         else
                         {
-                            throw new ApplicationException($"failed. (File Info Status Code: {fileInfoResponse.StatusCode} - {fileInfoResponse.Message}, File Status Code: {fileResponse.StatusCode} - {fileResponse.Message})");
+                            throw new ApplicationException($"File Info Status Code: {fileInfoResponse.StatusCode} - {fileInfoResponse.Message}, File Status Code: {fileResponse.StatusCode} - {fileResponse.Message}");
                         }
                     }
                     catch (Exception e)
                     {
-                        Log.Error($"failed. ({e.Message})");
+                        var message = e.Message;
+                        Log.Error($"Failed to save File {id} for Field {fieldId} for Record {recordId}. ({message})", id, fieldId, recordId, message);
                     }
                 }
             }
