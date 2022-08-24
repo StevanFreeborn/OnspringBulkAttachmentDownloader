@@ -127,7 +127,7 @@ public class OnspringService
                 var correctedPage = currentPage + 1;
                 var totalPages = allRecordIds.Count / pageSize;
 
-                while (currentPage < totalPages)
+                do
                 {
                     var recordIds = allRecordIds.Skip(pageSize * currentPage).Take(pageSize).ToList();
 
@@ -163,7 +163,7 @@ public class OnspringService
                     }
 
                     currentPage++;
-                }
+                } while (currentPage < totalPages);
             }
             else
             {
@@ -216,8 +216,6 @@ public class OnspringService
                             };
 
                             await file.Save(outputDirectory);
-
-                            Log.Information("Successfully saved File {id} for Field {fieldId} for Record {recordId}.", id, fieldId, recordId);
                         }
                         else
                         {
