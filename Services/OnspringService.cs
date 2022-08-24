@@ -123,13 +123,13 @@ public class OnspringService
                 Log.Information("Successfully retrieved record ids from Report {reportId}. ({numOfRecords} record ids found)", reportId, numOfRecords);
 
                 var pageSize = 50;
-                var currentPage = 0;
-                var correctedPage = currentPage + 1;
+                var pageNumber = 0;
+                var currentPage = pageNumber + 1;
                 var totalPages = Math.Ceiling((double)allRecordIds.Count / pageSize);
 
                 do
                 {
-                    var recordIds = allRecordIds.Skip(pageSize * currentPage).Take(pageSize).ToList();
+                    var recordIds = allRecordIds.Skip(pageSize * pageNumber).Take(pageSize).ToList();
 
                     var request = new GetRecordsRequest
                     {
@@ -147,7 +147,7 @@ public class OnspringService
                         {
                             var records = response.Value.Items;
 
-                            Log.Information("Successfully retrieved records for Report {reportId}. (page {correctedPage} of {totalPages})", reportId, correctedPage, totalPages);
+                            Log.Information("Successfully retrieved records for Report {reportId}. (page {currentPage} of {totalPages})", reportId, currentPage, totalPages);
 
                             await GetAndSaveFiles(records, outputDirectory);
                         }
@@ -159,11 +159,11 @@ public class OnspringService
                     catch (Exception e)
                     {
                         var message = e.Message;
-                        Log.Error("Failed to retrieve records for Report {reportId}. (page {correctedPage} of {totalPages} - {message})", reportId, correctedPage, totalPages, message);
+                        Log.Error("Failed to retrieve records for Report {reportId}. (page {currentPage} of {totalPages} - {message})", reportId, currentPage, totalPages, message);
                     }
 
-                    currentPage++;
-                } while (currentPage < totalPages);
+                    pageNumber++;
+                } while (pageNumber < totalPages);
             }
             else
             {
@@ -180,13 +180,13 @@ public class OnspringService
     public async Task GetRecordsFiles(int appId, List<int> fileFieldIds, List<int> recordIds, string outputDirectory)
     {
         var pageSize = 50;
-        var currentPage = 0;
-        var correctedPage = currentPage + 1;
+        var pageNumber = 0;
+        var currentPage = pageNumber + 1;
         var totalPages = Math.Ceiling((double)recordIds.Count / pageSize);
 
         do
         {
-            var pageOfRecordIds = recordIds.Skip(pageSize * currentPage).Take(pageSize).ToList();
+            var pageOfRecordIds = recordIds.Skip(pageSize * pageNumber).Take(pageSize).ToList();
 
             var request = new GetRecordsRequest
             {
@@ -204,7 +204,7 @@ public class OnspringService
                 {
                     var records = response.Value.Items;
 
-                    Log.Information("Successfully retrieved records. (page {correctedPage} of {totalPages})", correctedPage, totalPages);
+                    Log.Information("Successfully retrieved records. (page {currentPage} of {totalPages})", currentPage, totalPages);
 
                     await GetAndSaveFiles(records, outputDirectory);
                 }
@@ -216,11 +216,11 @@ public class OnspringService
             catch (Exception e)
             {
                 var message = e.Message;
-                Log.Error("Failed to retrieve records. (page {correctedPage} of {totalPages} - {message})", correctedPage, totalPages, message);
+                Log.Error("Failed to retrieve records. (page {currentPage} of {totalPages} - {message})", currentPage, totalPages, message);
             }
 
-            currentPage++;
-        } while (currentPage < totalPages);
+            pageNumber++;
+        } while (pageNumber < totalPages);
     }
 
     private async Task GetAndSaveFiles(List<ResultRecord> records, string outputDirectory)
