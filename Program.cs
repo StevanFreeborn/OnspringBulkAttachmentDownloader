@@ -32,7 +32,8 @@ if (source == Source.Report)
 
 if (source == Source.Records)
 {
-    var sourceIds = Prompt.GetRecordIds();
+    var recordIds = Prompt.GetRecordIds();
+    await onspringService.GetRecordsFiles(appId, fileFieldIds, recordIds, outputDirectory);
 }
 
 Log.CloseAndFlush();

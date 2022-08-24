@@ -147,7 +147,7 @@ public class OnspringService
                         {
                             var records = response.Value.Items;
 
-                            Log.Information("Successfully retrieved records for Report {reportId} succeeded. (page {correctedPage} of {totalPages})", reportId, correctedPage, totalPages);
+                            Log.Information("Successfully retrieved records for Report {reportId}. (page {correctedPage} of {totalPages})", reportId, correctedPage, totalPages);
 
                             await GetAndSaveFiles(records, outputDirectory);
                         }
@@ -175,6 +175,52 @@ public class OnspringService
             var message = e.Message;
             Log.Error("Failed to retrieve records for Report {reportId}. (message)", reportId, message);
         }
+    }
+
+    public async Task GetRecordsFiles(int appId, List<int> fileFieldIds, List<int> recordIds, string outputDirectory)
+    {
+        var pageSize = 50;
+        var currentPage = 0;
+        var correctedPage = currentPage + 1;
+        var totalPages = Math.Ceiling((double)recordIds.Count / pageSize);
+
+        do
+        {
+            var pageOfRecordIds = recordIds.Skip(pageSize * currentPage).Take(pageSize).ToList();
+
+            var request = new GetRecordsRequest
+            {
+                AppId = appId,
+                RecordIds = pageOfRecordIds,
+                FieldIds = fileFieldIds,
+                DataFormat = DataFormat.Raw,
+            };
+
+            try
+            {
+                var response = await _client.GetRecordsAsync(request);
+
+                if (response.IsSuccessful is true)
+                {
+                    var records = response.Value.Items;
+
+                    Log.Information("Successfully retrieved records. (page {correctedPage} of {totalPages})", correctedPage, totalPages);
+
+                    await GetAndSaveFiles(records, outputDirectory);
+                }
+                else
+                {
+                    throw new ApplicationException($"Status Code: {response.StatusCode} - {response.Message}");
+                }
+            }
+            catch (Exception e)
+            {
+                var message = e.Message;
+                Log.Error("Failed to retrieve records. (page {correctedPage} of {totalPages} - {message})", correctedPage, totalPages, message);
+            }
+
+            currentPage++;
+        } while (currentPage < totalPages);
     }
 
     private async Task GetAndSaveFiles(List<ResultRecord> records, string outputDirectory)
