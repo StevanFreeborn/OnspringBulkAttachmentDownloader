@@ -3,6 +3,8 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
 
+Log.Information("Onspring Bulk Attachment Downloader Started");
+
 var apiKey = Prompt.GetApiKey();
 var appId = Prompt.GetAppId();
 var fileFieldIds = Prompt.GetFileFieldIds();
@@ -36,4 +38,9 @@ if (source == Source.Records)
     await onspringService.GetRecordsFiles(appId, fileFieldIds, recordIds, outputDirectory);
 }
 
+Log.Information("Onspring Bulk Attachment Downloader Finished");
+
 Log.CloseAndFlush();
+
+Console.WriteLine("Presss any key to close...");
+Console.ReadLine();
