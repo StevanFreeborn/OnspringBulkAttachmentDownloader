@@ -15,6 +15,41 @@ public static class Prompt
         return apiKey;
     }
 
+    public static List<int> GetFileFieldIds()
+    {
+        var fileFieldIds = new List<int>();
+
+        while (fileFieldIds.Count < 1)
+        {
+            Console.Write("Please enter your file field ids: ");
+            var fileFieldIdsInput = Console.ReadLine();
+
+            if (!String.IsNullOrWhiteSpace(fileFieldIdsInput))
+            {
+                var idStrings = fileFieldIdsInput
+                .Split(',', StringSplitOptions.TrimEntries)
+                .ToList();
+
+                foreach (var id in idStrings)
+                {
+                    var parsedId = 0;
+
+                    if (!int.TryParse(id, out int result))
+                    {
+                        Log.Error($"{id} is an invalid field id. Please try entering your file field ids again.");
+                        fileFieldIds.Clear();
+                        break;
+                    }
+
+                    parsedId = result;
+                    fileFieldIds.Add(parsedId);
+                }
+            }
+        }
+
+        return fileFieldIds;
+    }
+
     public static string GetSource()
     {
         string? source = null;
