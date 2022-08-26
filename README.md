@@ -38,7 +38,6 @@ That all being said it's important you take into consideration and have an idea 
 The tool is published as a release where you can download it as a single executable file for the following operating systems:
 
 + win-x64
-+ linux-x64
 + osx-x64 (Minimum OS version is macOS 10.12 Sierra)
 
 You are also welcome to clone this repository and run the tool using the .NET 6.0 tooling and runtime. As well as modify the tool further for your specific needs.
