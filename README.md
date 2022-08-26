@@ -53,7 +53,7 @@ When starting the tool you will always be prompted for the following:
   + By looking at the url of the app in your browser.
   ![app-id-url-example.png](/READMEimages/app-id-url-example.png)
 
-+ `File Field Ids` - These are the ids for the fields where the attachments you want to download are held. This should be a list of ids delimited by commas. These ids can be retrieved via... 
++ `File Field Ids` - These are the ids for the fields where the attachments you want to download are held. This should be a list of ids delimited by commas. These ids can be retrieved via...
   + The [Onspring API's](https://api.onspring.com/swagger/index.html) /[Fields/appId/{appId}](Fields/appId/{appId}) endpoint
   + An app's Fields & Objects report
   ![field-and-objects-report-example.png](/READMEimages/field-and-objects-report-example.png)

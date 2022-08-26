@@ -229,6 +229,11 @@ public class OnspringService
         {
             var recordId = record.RecordId;
 
+            if (record.FieldData.Count is 0)
+            {
+                Log.Information("No files found for given fields for Record {recordId}.");
+            }
+
             foreach (var field in record.FieldData)
             {
                 var fieldId = field.FieldId;
@@ -242,11 +247,6 @@ public class OnspringService
                 if (field.Type == ResultValueType.FileList)
                 {
                     fileIds.AddRange(field.AsFileList());
-                }
-
-                if (fileIds.Count is 0)
-                {
-                    Log.Information("No files found for Field {fieldId} for Record {recordId}.");
                 }
 
                 foreach (var id in fileIds)
