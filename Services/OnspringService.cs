@@ -244,6 +244,11 @@ public class OnspringService
                     fileIds.AddRange(field.AsFileList());
                 }
 
+                if (fileIds.Count is 0)
+                {
+                    Log.Information("No files found for Field {fieldId} for Record {recordId}.");
+                }
+
                 foreach (var id in fileIds)
                 {
                     var fileInfoResponse = await _client.GetFileInfoAsync(recordId, fieldId, id);
@@ -271,7 +276,7 @@ public class OnspringService
                     catch (Exception e)
                     {
                         var message = e.Message;
-                        Log.Error($"Failed to save File {id} for Field {fieldId} for Record {recordId}. ({message})", id, fieldId, recordId, message);
+                        Log.Error("Failed to save File {id} for Field {fieldId} for Record {recordId}. ({message})", id, fieldId, recordId, message);
                     }
                 }
             }
