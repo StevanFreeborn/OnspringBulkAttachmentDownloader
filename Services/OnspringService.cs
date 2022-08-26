@@ -231,7 +231,7 @@ public class OnspringService
 
             if (record.FieldData.Count is 0)
             {
-                Log.Information("No files found for given fields for Record {recordId}.");
+                Log.Information("No files found for file fields entered for Record {recordId}.", recordId);
             }
 
             foreach (var field in record.FieldData)
