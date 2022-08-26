@@ -39,6 +39,8 @@ The tool is published as a release where you can download it as a single executa
 
 + win-x64
 + osx-x64 (Minimum OS version is macOS 10.12 Sierra)
+  + Note after downloading the executable you will need to run `chmod +x` to give the executable execute permissions on your machine.
+  + You will likely also need to provide permission for the application to run via the Security & Privacy panel of the system settings.
 
 You are also welcome to clone this repository and run the tool using the .NET 6.0 tooling and runtime. As well as modify the tool further for your specific needs.
 
